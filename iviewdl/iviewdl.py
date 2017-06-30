@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-import requests
+from distutils.spawn import find_executable
 import re
 import sys
 from tempfile import NamedTemporaryFile
-from bs4 import BeautifulSoup as Soup
 
+from bs4 import BeautifulSoup as Soup
+import requests
+
+if not find_executable("ffmpeg"):
+    print("You need to install ffmpeg. apt install ffmpeg / yum install ffmpeg")
+    return 1
 TOKEN = Soup(requests.get("http://iview.abc.net.au/auth").text, "lxml").find("tokenhd").text
 
 def search(term):
@@ -45,9 +50,11 @@ def get_download_cmd(urls, filename=None):
     out += ["-i", urls["program"]]
     if "subs" in urls:
         out += ["-i", urls["subs"]]
-    out += ["-c:v", "copy", "-c:a", "copy", "-bsf:a", "aac_adtstoasc"] + ["-map", "0:0", "-map", "0:1"] + (["-map", "1", "-c:s:0", "mov_text", "-metadata:s:s:0", "language=eng"] if "subs" in urls else None)
+    out += ["-c:v", "copy", "-c:a", "copy", "-bsf:a", "aac_adtstoasc"]
+    out += ["-map", "0:0", "-map", "0:1"]
+    if "subs" in urls:
+        out += ["-map", "1", "-c:s:0", "mov_text", "-metadata:s:s:0", "language=eng"]
     out += [urls["filename"]]
-    print(" ".join(out))
     return out
 
 def main():

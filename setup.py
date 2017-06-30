@@ -3,11 +3,11 @@ from setuptools import setup
 setup(
     name = "iviewdl",
     packages = ["iviewdl"],
-    install_requires = ["beautifulsoup4", "requests"],
+    install_requires = ["beautifulsoup4", "requests", "lxml"],
     entry_points = {
         "console_scripts": ['iviewdl = iviewdl.iviewdl:main']
         },
-    version = "1.0.2",
+    version = "1.0.3",
     description = "A Python program to download videos from ABC iView",
     author = "Steven Smith",
     author_email = "stevensmith.ome@gmail.com",
