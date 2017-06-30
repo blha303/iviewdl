@@ -45,7 +45,7 @@ def get_download_cmd(urls, filename=None):
     out += ["-i", urls["program"]]
     if "subs" in urls:
         out += ["-i", urls["subs"]]
-    out += ["-map", "0:0", "-map", "0:1"] + (["-map", "1", "-c:s:0", "mov_text", "-metadata:s:s:0", "language=eng"] if "subs" in urls else None)
+    out += ["-c:v", "copy", "-c:a", "copy"] + ["-map", "0:0", "-map", "0:1"] + (["-map", "1", "-c:s:0", "mov_text", "-metadata:s:s:0", "language=eng"] if "subs" in urls else None)
     out += [urls["filename"]]
     print(" ".join(out))
     return out

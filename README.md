@@ -1,7 +1,7 @@
 iviewdl
 =======
 
-A Python program to download videos from ABC iView
+A Python program to download videos from ABC iView. **Requires ffmpeg installed**
 
 Usage
 -----
