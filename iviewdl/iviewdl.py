@@ -9,7 +9,7 @@ import requests
 
 if not find_executable("ffmpeg"):
     print("You need to install ffmpeg. apt install ffmpeg / yum install ffmpeg")
-    return 1
+    sys.exit(1)
 TOKEN = Soup(requests.get("http://iview.abc.net.au/auth").text, "lxml").find("tokenhd").text
 
 def search(term):
