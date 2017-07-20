@@ -71,7 +71,7 @@ def main():
             print("\n".join("{0}: {seriesTitle} {title}".format(n, **data) for n,data in enumerate(results)))
             return 2
         else:
-            result = results[selection]
+            result = results[args.selection]
     else:
         result = results[0]
     data = get_stream_urls(requests.get("http://iview.abc.net.au/api/" + result["href"]).json())
