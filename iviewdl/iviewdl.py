@@ -57,23 +57,41 @@ def get_download_cmd(urls, filename=None):
     out += [urls["filename"]]
     return out
 
+def prompt(question, response_type=int):
+    index = None
+    while index is None:
+        try:
+            index = response_type(input(question))
+        except ValueError:
+            print("Try again. Has to be a number.")
+        except IndexError:
+            print("Check your input. Ctrl-C to back out")
+        except KeyboardInterrupt:
+            print("\nAborted")
+            exit(127)
+    return index
+
 def main():
     from argparse import ArgumentParser
     import subprocess
     parser = ArgumentParser()
     parser.add_argument("search")
-    parser.add_argument("--selection", help="Number of video to get", type=int)
-    parser.add_argument("--filename")
+    parser.add_argument("-s", "--selection", help="Number of video to get", type=int)
+    parser.add_argument("-f", "--filename")
     args = parser.parse_args()
     results = search(args.search)
     if len(results) > 1:
-        if not args.selection:
+        if args.selection is None:
             print("\n".join("{0}: {seriesTitle} {title}".format(n, **data) for n,data in enumerate(results)))
-            return 2
+            if sys.stdout.isatty():
+                result = results[prompt("enter your choice: ")]
+            else:
+                return 2
         else:
             result = results[args.selection]
     else:
         result = results[0]
+    print("Downloading {seriesTitle} {title}".format(**result), file=sys.stdout)
     data = get_stream_urls(requests.get("http://iview.abc.net.au/api/" + result["href"]).json())
     process = subprocess.Popen(get_download_cmd(data, filename=args.filename), stdout=subprocess.PIPE)
     process.wait()
