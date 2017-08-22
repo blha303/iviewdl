@@ -31,7 +31,7 @@ def fix_stream_url(url):
 def get_stream_urls(data):
     if data["playlist"]:
         out = {}
-        out["filename"] = "{} {}.mp4".format(data["seriesTitle"], data["title"])
+        out["filename"] = "".join(c if c not in "\/:*?<>|" else "_" for c in "{} {}.mp4".format(data["seriesTitle"], data["title"]))
         for p in data["playlist"]:
             if p["type"] == "program":
                 out["program"] = fix_stream_url(p["hls-high"])
