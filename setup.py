@@ -4,6 +4,7 @@ setup(
     name = "iviewdl",
     packages = ["iviewdl"],
     install_requires = ["beautifulsoup4", "requests", "lxml"],
+    python_requires = ">=3",
     entry_points = {
         "console_scripts": ['iviewdl = iviewdl.iviewdl:main']
         },
