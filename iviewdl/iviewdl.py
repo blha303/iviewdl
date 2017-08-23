@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+from __future__ import print_function
 from distutils.spawn import find_executable
 import re
 import sys
@@ -6,6 +7,9 @@ from tempfile import NamedTemporaryFile
 
 from bs4 import BeautifulSoup as Soup
 import requests
+
+if sys.version_info[0] == 3:
+    unicode = str
 
 if not find_executable("ffmpeg"):
     print("You need to install ffmpeg. apt install ffmpeg / yum install ffmpeg")
@@ -21,7 +25,7 @@ def vtt_to_srt(url):
     for n,block in enumerate(vtt.split("\n\n")[1:]):
         out.append("{}\n{}".format(n,block.strip()))
     with NamedTemporaryFile(delete=False, suffix=".srt") as temp:
-        temp.write(bytes("\n\n".join(out), "utf-8"))
+        temp.write(unicode("\n\n".join(out)).encode("utf-8"))
         temp.seek(0)
         return temp.name
 
