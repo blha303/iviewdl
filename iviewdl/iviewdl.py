@@ -18,9 +18,7 @@ if not find_executable("ffmpeg"):
 TOKEN = Soup(requests.get("http://iview.abc.net.au/auth").text, "lxml").find("tokenhd").text
 
 def search(term):
-    results = requests.get("http://iview.abc.net.au/api/search/", params={"fields": "href,seriesTitle,title", "keyword": term}).json()
-    print(results)
-    return results
+    return requests.get("http://iview.abc.net.au/api/search/", params={"fields": "href,seriesTitle,title", "keyword": term}).json()
 
 def vtt_to_srt(url):
     vtt = requests.get(url).text.strip()
