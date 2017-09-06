@@ -18,7 +18,9 @@ if not find_executable("ffmpeg"):
 TOKEN = Soup(requests.get("http://iview.abc.net.au/auth").text, "lxml").find("tokenhd").text
 
 def search(term):
-    return requests.get("http://iview.abc.net.au/api/search/", params={"fields": "href,seriesTitle,title", "keyword": term}).json()
+    results = requests.get("http://iview.abc.net.au/api/search/", params={"fields": "href,seriesTitle,title", "keyword": term}).json()
+    print(results)
+    return results
 
 def vtt_to_srt(url):
     vtt = requests.get(url).text.strip()
@@ -90,19 +92,18 @@ def main():
         workers = []
 
         with open(args.search, "r") as videos:
-            for line in videos:
+            for iview_id in videos:
                 try:
-                    episode_name, series_name, iview_id = \
-                        [elem.strip() for elem in line.split(",")]
+                    iview_id = iview_id.strip()
 
-                    if not episode_name or not series_name or not iview_id:
+                    if not iview_id:
                         raise Exception
 
-                    print("Downloading {} {}".format(series_name, episode_name), file=sys.stdout)
+                    print("Downloading {}".format(iview_id), file=sys.stdout)
                     data = get_stream_urls(requests.get("http://iview.abc.net.au/api/programs/" + iview_id).json())
-                    workers.append(subprocess.Popen(get_download_cmd(data, filename=episode_name), stdout=subprocess.PIPE))
+                    workers.append(subprocess.Popen(get_download_cmd(data), stdout=subprocess.PIPE))
                 except:
-                    print("Could not start download of {}".format(line))
+                    print("Could not start download of {}".format(iview_id))
                     continue
 
         for worker in workers:
