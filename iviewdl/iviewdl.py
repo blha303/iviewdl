@@ -3,6 +3,7 @@ from __future__ import print_function
 from distutils.spawn import find_executable
 import re
 import sys
+import os
 from tempfile import NamedTemporaryFile
 
 from bs4 import BeautifulSoup as Soup
@@ -83,23 +84,54 @@ def main():
     parser.add_argument("-s", "--selection", help="Number of video to get", type=int)
     parser.add_argument("-f", "--filename")
     args = parser.parse_args()
-    results = search(args.search)
-    if len(results) > 1:
-        if args.selection is None:
-            print("\n".join("{0}: {seriesTitle} {title}".format(n, **data) for n,data in enumerate(results)))
-            if sys.stdout.isatty():
-                result = results[prompt("enter your choice: ")]
-            else:
-                return 2
-        else:
-            result = results[args.selection]
+
+    if os.path.isfile(args.search):
+        process_exit_status = []
+        workers = []
+
+        with open(args.search, "r") as videos:
+            for iview_id in videos:
+                try:
+                    iview_id = iview_id.strip()
+
+                    if not iview_id:
+                        raise Exception
+
+                    print("Downloading {}".format(iview_id), file=sys.stdout)
+                    data = get_stream_urls(requests.get("http://iview.abc.net.au/api/programs/" + iview_id).json())
+                    workers.append(subprocess.Popen(get_download_cmd(data), stdout=subprocess.PIPE))
+                except:
+                    print("Could not start download of {}".format(iview_id))
+                    continue
+
+        for worker in workers:
+            worker.wait()
+            process_exit_status.append(worker.returncode)
+
+        try:
+            return max(process_exit_status)
+        except:
+            return 1
+
     else:
-        result = results[0]
-    print("Downloading {seriesTitle} {title}".format(**result), file=sys.stdout)
-    data = get_stream_urls(requests.get("http://iview.abc.net.au/api/" + result["href"]).json())
-    process = subprocess.Popen(get_download_cmd(data, filename=args.filename), stdout=subprocess.PIPE)
-    process.wait()
-    return process.returncode
+        results = search(args.search)
+        if len(results) > 1:
+            if True:
+                print("\n".join("{0}: {seriesTitle} {title}".format(n, **data) for n,data in enumerate(results)))
+                if sys.stdout.isatty():
+                    result = results[prompt("enter your choice: ")]
+                else:
+                    return 2
+            else:
+                result = results[args.selection]
+        else:
+            result = results[0]
+
+        print("Downloading {seriesTitle} {title}".format(**result), file=sys.stdout)
+        data = get_stream_urls(requests.get("http://iview.abc.net.au/api/" + result["href"]).json())
+        process = subprocess.Popen(get_download_cmd(data, filename=args.filename), stdout=subprocess.PIPE)
+        process.wait()
+        return process.returncode
 
 if __name__ == "__main__":
     sys.exit(main())
