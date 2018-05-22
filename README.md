@@ -1,6 +1,8 @@
 iviewdl
 =======
 
+**Currently not working**, please use [youtube-dl](https://rg3.github.io/youtube-dl/)
+
 A Python program to download videos from ABC iView. **Requires ffmpeg installed**
 
 Usage
