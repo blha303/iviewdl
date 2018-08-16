@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 from __future__ import print_function
 from distutils.spawn import find_executable
-import re
+import hashlib
+import time
+import hmac
 import sys
 from tempfile import NamedTemporaryFile
 
@@ -29,22 +31,29 @@ def vtt_to_srt(url):
         temp.seek(0)
         return temp.name
 
-def fix_stream_url(url):
-    return url.replace("iviewhls-i.akamaihd", "iviewum-vh.akamaihd") + "?hdnea" + TOKEN
+def generate_secret(movieid):
+    urlparam = "/auth/hls/sign?ts={}&hn={}&d=(null)".format("%.6f" % time.time(), movieid)
+    message = bytes(urlparam)
+    secret = bytes("MainContainerViewController")
+    sig = hmac.new(secret, message, digestmod=hashlib.sha256).hexdigest()
+    abc_2nd_url = "http://iview.abc.net.au" + urlparam + "&sig=" + sig
+    final_request = requests.get(abc_2nd_url)
+    return "?hdnea=" + final_request.content
+
 
 def get_stream_urls(data):
     if data["playlist"]:
-        out = {}
-        out["filename"] = "".join(c if c not in "\/:*?<>|" else "_" for c in "{} {}.mp4".format(data["seriesTitle"], data["title"]))
+        out = {"filename": "".join(
+            c if c not in "\/:*?<>|" else "_" for c in "{} {}.mp4".format(data["seriesTitle"], data["title"]))}
         for p in data["playlist"]:
             if p["type"] == "program":
-                out["program"] = fix_stream_url(p["hls-high"])
+                out["program"] = p["hls-plus"] + generate_secret(data["episodeHouseNumber"])
                 if "captions" in p:
                     out["subs"] = vtt_to_srt(p["captions"]["src-vtt"])
             elif p["type"] == "rating":
-                out["rating"] = fix_stream_url(p["hls-high"])
+                out["rating"] = p["hls-plus"] + generate_secret(data["episodeHouseNumber"])
             elif p["type"] == "preroll":
-                out["rating"] = fix_stream_url(p["hls-high"])
+                out["rating"] = p["hls-plus"] + generate_secret(data["episodeHouseNumber"])
         return out
     else:
         raise Exception("No playlist data")
