@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 from __future__ import print_function
 from distutils.spawn import find_executable
-import hashlib
 import time
-import hmac
 import sys
 from tempfile import NamedTemporaryFile
-
-from bs4 import BeautifulSoup as Soup
+import hmac
+import hashlib
 import requests
+from argparse import ArgumentParser
+import subprocess
 
 if sys.version_info[0] == 3:
     unicode = str
@@ -16,20 +16,23 @@ if sys.version_info[0] == 3:
 if not find_executable("ffmpeg"):
     print("You need to install ffmpeg. apt install ffmpeg / yum install ffmpeg")
     sys.exit(1)
-TOKEN = Soup(requests.get("http://iview.abc.net.au/auth").text, "lxml").find("tokenhd").text
+
 
 def search(term):
-    return requests.get("http://iview.abc.net.au/api/search/", params={"fields": "href,seriesTitle,title", "keyword": term}).json()
+    return requests.get("http://iview.abc.net.au/api/search/",
+                        params={"fields": "href,seriesTitle,title", "keyword": term}).json()
+
 
 def vtt_to_srt(url):
     vtt = requests.get(url).text.strip()
     out = []
-    for n,block in enumerate(vtt.split("\n\n")[1:]):
-        out.append("{}\n{}".format(n,block.strip()))
+    for n, block in enumerate(vtt.split("\n\n")[1:]):
+        out.append("{}\n{}".format(n, block.strip()))
     with NamedTemporaryFile(delete=False, suffix=".srt") as temp:
         temp.write(unicode("\n\n".join(out)).encode("utf-8"))
         temp.seek(0)
         return temp.name
+
 
 def generate_secret(movieid):
     urlparam = "/auth/hls/sign?ts={}&hn={}&d=(null)".format("%.6f" % time.time(), movieid)
@@ -58,6 +61,7 @@ def get_stream_urls(data):
     else:
         raise Exception("No playlist data")
 
+
 def get_download_cmd(urls, filename=None):
     out = ["ffmpeg"]
     out += ["-i", urls["program"]]
@@ -67,8 +71,9 @@ def get_download_cmd(urls, filename=None):
     out += ["-map", "0:0", "-map", "0:1"]
     if "subs" in urls:
         out += ["-map", "1", "-c:s:0", "mov_text", "-metadata:s:s:0", "language=eng"]
-    out += [urls["filename"]]
+    out += [urls["filename"]] if filename is None else [filename]
     return out
+
 
 def prompt(question, response_type=int):
     index = None
@@ -84,9 +89,8 @@ def prompt(question, response_type=int):
             exit(127)
     return index
 
+
 def main():
-    from argparse import ArgumentParser
-    import subprocess
     parser = ArgumentParser()
     parser.add_argument("search")
     parser.add_argument("-s", "--selection", help="Number of video to get", type=int)
@@ -103,12 +107,17 @@ def main():
         else:
             result = results[args.selection]
     else:
-        result = results[0]
+        try:
+            result = results[0]
+        except IndexError:
+            print("No matches found")
+            quit()
     print("Downloading {seriesTitle} {title}".format(**result), file=sys.stdout)
     data = get_stream_urls(requests.get("http://iview.abc.net.au/api/" + result["href"]).json())
     process = subprocess.Popen(get_download_cmd(data, filename=args.filename), stdout=subprocess.PIPE)
     process.wait()
     return process.returncode
+
 
 if __name__ == "__main__":
     sys.exit(main())
