@@ -46,8 +46,13 @@ def generate_secret(movieid):
 
 def get_stream_urls(data):
     if data["playlist"]:
+        if "title" not in data:  # title must exist for the file name
+            data["title"] = ""
+        else:
+            data["title"] = " " + data["title"]
+
         out = {"filename": "".join(
-            c if c not in "\/:*?<>|" else "_" for c in "{} {}.mp4".format(data["seriesTitle"], data["title"]))}
+            c if c not in "\/:*?<>|" else "_" for c in "{}{}.mp4".format(data["seriesTitle"], data["title"]))}
         for p in data["playlist"]:
             if p["type"] == "program":
                 out["program"] = p["hls-plus"] + generate_secret(data["episodeHouseNumber"])
@@ -99,7 +104,12 @@ def main():
     results = search(args.search)
     if len(results) > 1:
         if args.selection is None:
-            print("\n".join("{0}: {seriesTitle} {title}".format(n, **data) for n,data in enumerate(results)))
+            for n, data in enumerate(results):
+                try:
+                    print("{0}: {seriesTitle} {title}".format(n, **data))
+                except KeyError:
+                    print("{0}: {seriesTitle}".format(n, **data))
+
             if sys.stdout.isatty():
                 result = results[prompt("enter your choice: ")]
             else:
@@ -112,7 +122,10 @@ def main():
         except IndexError:
             print("No matches found")
             quit()
-    print("Downloading {seriesTitle} {title}".format(**result), file=sys.stdout)
+    try:
+        print("Downloading {seriesTitle} {title}".format(**result), file=sys.stdout)
+    except KeyError:
+        print("Downloading {seriesTitle}".format(**result), file=sys.stdout)
     data = get_stream_urls(requests.get("http://iview.abc.net.au/api/" + result["href"]).json())
     process = subprocess.Popen(get_download_cmd(data, filename=args.filename), stdout=subprocess.PIPE)
     process.wait()
