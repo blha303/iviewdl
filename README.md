@@ -1,16 +1,12 @@
-This project is deprecated, just use youtube-dl
-===================
-
-If you'd like to adopt this project please open an issue. All current bugs won't be fixed by blha303. Sorry.
-
-Get the url from iview using the Share button under an episode, copy the link
-```bash
-$ pip install youtube-dl 
-$ youtube-dl https://iview.abc.net.au/show/shaun-micallefs-mad-as-hell/series/9/video/LE1814V001S00
-```
-
 iviewdl
 =======
+
+The fancy package has been replaced by a single script! [new_iviewdl.py](new_iviewdl.py)
+
+Depends on ffmpeg and youtube-dl
+
+Old readme
+----------
 
 A Python program to download videos from ABC iView. **Requires ffmpeg installed**
 
