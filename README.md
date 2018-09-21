@@ -1,3 +1,12 @@
+This project is deprecated, just use youtube-dl
+===================
+
+Get the url from iview using the Share button under an episode, copy the link
+```bash
+$ pip install youtube-dl 
+$ youtube-dl https://iview.abc.net.au/show/shaun-micallefs-mad-as-hell/series/9/video/LE1814V001S00
+```
+
 iviewdl
 =======
 
