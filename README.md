@@ -1,6 +1,8 @@
 This project is deprecated, just use youtube-dl
 ===================
 
+If you'd like to adopt this project please open an issue. All current bugs won't be fixed by blha303. Sorry.
+
 Get the url from iview using the Share button under an episode, copy the link
 ```bash
 $ pip install youtube-dl 
