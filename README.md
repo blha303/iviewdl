@@ -12,8 +12,6 @@ $ youtube-dl https://iview.abc.net.au/show/shaun-micallefs-mad-as-hell/series/9/
 iviewdl
 =======
 
-**Working again as of 15 August 2018**
-
 A Python program to download videos from ABC iView. **Requires ffmpeg installed**
 
 Usage
@@ -27,7 +25,7 @@ Usage
 Contributing
 ------------
 
-Open `iviewdl/iviewdl.py`, have a look, it's pretty straightforward. I don't want to be the only person that knows how the site works, there needs to be clients in more languages than Python. If there's a bug to fix or more features to add, please submit an issue or a pull request.
+~~Open `iviewdl/iviewdl.py`, have a look, it's pretty straightforward. I don't want to be the only person that knows how the site works, there needs to be clients in more languages than Python. If there's a bug to fix or more features to add, please submit an issue or a pull request.~~
 
 Forks
 -----
