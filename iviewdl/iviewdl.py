@@ -27,7 +27,7 @@ def vtt_to_srt(url):
     vtt = requests.get(url).text.strip()
     out = []
     for n, block in enumerate(vtt.split("\n\n")[1:]):
-        out.append("{}\n{}".format(n, block.strip()))
+        out.append(u"{}\n{}".format(n, block.strip()))
     with NamedTemporaryFile(delete=False, suffix=".srt") as temp:
         temp.write(unicode("\n\n".join(out)).encode("utf-8"))
         temp.seek(0)
