@@ -18,7 +18,7 @@ def main():
     if "/video/" in args.seriesurl:
         download_url_list([args.seriesurl])
     else:
-        page = urlopen(args.seriesurl).read().split(b"window.__INITIAL_STATE__ = ",1)[1].split(b";")[0]
+        page = urlopen(args.seriesurl).read().split(b"window.__INITIAL_STATE__ = ",1)[1].split(b"</script")[0].rstrip().rstrip(";")
         data = json.loads(eval(page))
         download_url_list([ep["shareUrl"] for ep in data["page"]["pageData"]["_embedded"]["selectedSeries"]["_embedded"]["videoEpisodes"]])
 
