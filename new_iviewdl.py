@@ -20,7 +20,7 @@ def main():
     else:
         page = urlopen(args.seriesurl).read().split(b"window.__INITIAL_STATE__ = ",1)[1].split(b";")[0]
         data = json.loads(eval(page))
-        download_url_list([ep["shareUrl"] for ep in data["page"]["pageData"]["_embedded"]["selectedSeries"]["_embedded"]["videoEpisodes"]])
+        download_url_list([ep["shareUrl"] for ep in data["route"]["pageData"]["_embedded"]["selectedSeries"]["_embedded"]["videoEpisodes"]])
 
 if __name__ == "__main__":
     try:
